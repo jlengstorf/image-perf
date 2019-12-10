@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Image Performance</title>
+    <style>
+      img {
+        display: block;
+        margin: 0 auto;
+        max-width: 400px;
+        width: 90%;
+      }
+      a {
+        display: block;
+        margin: 10px auto 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Img Element</h2>
+    <img
+      alt="a teapot and a cup of tea"
+      srcset=""
+      data-srcset="
+        https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_310/v1576005068/lwj/tea.jpg 300w,
+        https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_410/v1576005068/lwj/tea.jpg 400w,
+        https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_610/v1576005068/lwj/tea.jpg 600w,
+        https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_810/v1576005068/lwj/tea.jpg 800w
+      "
+      sizes="(max-width: 320px) 300px, 400px"
+      src="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_810/v1576005068/lwj/tea.jpg"
+      loading="lazy"
+    />
+    <a href="https://unsplash.com/photos/4aJ9GCwB3Gw"
+      >Photo by Jorge Garcia on Unsplash</a
+    >
+
+    <h2 style="margin-top: 110vh">Picture Element</h2>
+
+    <picture>
+      <source
+        srcset="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,e_blur:150,c_fill,g_auto,w_20/v1576005068/lwj/tea.jpg"
+        data-srcset="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,c_fill,g_auto,w_400/v1576005068/lwj/tea.jpg"
+        media="(min-width: 400px)"
+      />
+      <source
+        srcset="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,e_blur:150,c_fill,g_auto,w_20/v1576005068/lwj/tea.jpg"
+        data-srcset="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,c_fill,g_auto,w_200/v1576005068/lwj/tea.jpg"
+        media="(min-width: 200px)"
+      />
+
+      <!-- fallback -->
+      <img
+        alt="a teapot and a cup of tea"
+        src="https://res.cloudinary.com/jlengstorf/image/upload/f_auto,q_auto,w_800/v1576005068/lwj/tea.jpg"
+      />
+    </picture>
+
+    <script>
+      const pictureEl = document.querySelectorAll('picture');
+
+      const lazyload = entries => {
+        entries.forEach(({ isIntersecting, target }) => {
+          if (!isIntersecting) return;
+
+          const sources = target.querySelectorAll('source');
+
+          sources.forEach(source => {
+            const realSrcSet = source.dataset.srcset;
+
+            source.setAttribute('srcset', realSrcSet);
+            console.log({ realSrcSet });
+          });
+
+          // stop observing (only run this once)
+          observer.unobserve(target);
+        });
+      };
+
+      const observer = new IntersectionObserver(lazyload, {
+        threshold: 0.5,
+        rootMargin: '20px'
+      });
+
+      pictureEl.forEach(pic => observer.observe(pic));
+    </script>
+  </body>
+</html>
